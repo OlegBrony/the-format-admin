@@ -12,3 +12,8 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+.panel {
+  margin-top: 3vh;
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+}
