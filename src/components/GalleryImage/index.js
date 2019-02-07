@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
-import './Course.css';
+import React                  from 'react';
+import './GalleryImage.css';
+import { Image }              from 'semantic-ui-react';
 
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
@@ -53,27 +54,43 @@ const DialogActions = withStyles(theme => ({
   },
 }))(MuiDialogActions);
 
-class Course extends Component {
-  state = {
-    open: false,
+
+class GalleryImage extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      open: false,
+    };
+  }
+
+  viewImage = () => {
+    this.setState({ open: true });
   };
 
-  handleClickOpen = () => {
-    this.setState({
-      open: true,
-    });
+  loadImage = () => {
+    this.setState({ open: true });
   };
 
   handleClose = () => {
+    console.log(this.state);
     this.setState({ open: false });
+    console.log(this.state);
   };
 
+
   render() {
+    console.log('this.state');
+    console.log(this.state);
     return (
-      <div>
-        <Button variant="outlined" color="secondary" onClick={this.handleClickOpen}>
-          Open dialog
-        </Button>
+      <div className={this.props.className} onClick={this.loadImage}>
+        <Image src={this.props.url} alt={this.props.alt}/>
+
+        <div className={`${this.props.className}-hover`}>
+          {this.props.alt === 'load image' ?
+            <Image src={'../images/gallery/load-image-hover.svg'} alt={this.props.alt}/> :
+            <Image src={'../images/gallery/view-image.svg'} alt={this.props.alt}/>
+          }
+        </div>
         <Dialog
           onClose={this.handleClose}
           aria-labelledby="customized-dialog-title"
@@ -108,5 +125,5 @@ class Course extends Component {
     );
   }
 }
-export default Course;
 
+export default GalleryImage;
