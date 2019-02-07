@@ -1,17 +1,19 @@
-import React                  from 'react';
+import React     from 'react';
 import './GalleryImage.css';
-import { Image }              from 'semantic-ui-react';
+import { Image } from 'semantic-ui-react';
 
-import { withStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import MuiDialogTitle from '@material-ui/core/DialogTitle';
+import { withStyles }   from '@material-ui/core/styles';
+import Button           from '@material-ui/core/Button';
+import Dialog           from '@material-ui/core/Dialog';
+import MuiDialogTitle   from '@material-ui/core/DialogTitle';
 import MuiDialogContent from '@material-ui/core/DialogContent';
 import MuiDialogActions from '@material-ui/core/DialogActions';
-import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
-import Typography from '@material-ui/core/Typography';
+import IconButton       from '@material-ui/core/IconButton';
+import CloseIcon        from '@material-ui/icons/Close';
+import Typography       from '@material-ui/core/Typography';
 
+import loadImage from './load-image-hover.svg'
+import Dropzone from 'react-dropzone';
 
 const DialogTitle = withStyles(theme => ({
   root: {
@@ -32,7 +34,7 @@ const DialogTitle = withStyles(theme => ({
       <Typography variant="h6">{children}</Typography>
       {onClose ? (
         <IconButton aria-label="Close" className={classes.closeButton} onClick={onClose}>
-          <CloseIcon />
+          <CloseIcon/>
         </IconButton>
       ) : null}
     </MuiDialogTitle>
@@ -60,31 +62,54 @@ class GalleryImage extends React.Component {
     super(props);
     this.state = {
       open: false,
+      modalContent: {
+        type: null, // load / view
+        url: null,
+
+      },
     };
   }
 
   viewImage = () => {
-    this.setState({ open: true });
+    this.setState({
+      open: true,
+      modalContent: {
+        type: 'view',
+        url: this.props.url,
+      },
+    });
   };
 
   loadImage = () => {
-    this.setState({ open: true });
+    this.setState({
+      open: true,
+      modalContent: {
+        type: 'load',
+      },
+    });
   };
 
-  handleClose = () => {
-    console.log(this.state);
+  handleClose = e => {
+    e.stopPropagation();
     this.setState({ open: false });
-    console.log(this.state);
+  };
+
+  handleDeleteImage = () => {
+    console.log('delete image');
+  };
+
+  onDrop = (acceptedFiles, rejectedFiles) => {
+    // Do something with files
   };
 
 
   render() {
-    console.log('this.state');
-    console.log(this.state);
     return (
-      <div className={this.props.className} onClick={this.loadImage}>
+      <div className={this.props.className}
+           onClick={this.props.alt === 'load image' ?
+             () => this.loadImage() :
+             () => this.viewImage()}>
         <Image src={this.props.url} alt={this.props.alt}/>
-
         <div className={`${this.props.className}-hover`}>
           {this.props.alt === 'load image' ?
             <Image src={'../images/gallery/load-image-hover.svg'} alt={this.props.alt}/> :
@@ -97,27 +122,59 @@ class GalleryImage extends React.Component {
           open={this.state.open}
         >
           <DialogTitle id="customized-dialog-title" onClose={this.handleClose}>
-            Modal title
+            {this.props.alt === 'load image' ?
+              'Загрузить новое изображение в галерею' :
+              `Реактировать изображение ${this.props.url.split('/')[this.props.url.split('/').length - 1]}`}
           </DialogTitle>
           <DialogContent>
-            <Typography gutterBottom>
-              Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac
-              facilisis in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum
-              at eros.
-            </Typography>
-            <Typography gutterBottom>
-              Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Vivamus sagittis
-              lacus vel augue laoreet rutrum faucibus dolor auctor.
-            </Typography>
-            <Typography gutterBottom>
-              Aenean lacinia bibendum nulla sed consectetur. Praesent commodo cursus magna, vel
-              scelerisque nisl consectetur et. Donec sed odio dui. Donec ullamcorper nulla non metus
-              auctor fringilla.
-            </Typography>
+            <div className={'modal-content'}>
+              {!(this.props.alt === 'load image') ?
+                <Image src={this.state.modalContent.url}
+                       className={`modal-view-image-url`}/> :
+                <Dropzone onDrop={this.onDrop}>
+                  {({ getRootProps, getInputProps, isDragActive }) => {
+                    return (
+                      <div
+                        {...getRootProps()}
+                        className={"dropzone"}
+                      >
+                        <input {...getInputProps()} />
+                        {isDragActive ? (
+                          <p className={"image-box-text"}>
+                            Перетягніть зображення сюди
+                          </p>
+                        ) : (
+                          <div className={"image-box"}>
+                            <p>Додайте зображення</p>
+                            <img src={loadImage} className={"upload-image"} />
+                            <p className={"image-box-text"}>
+                              Перетягніть зображення сюди
+                            </p>
+                            <p
+                              onClick={() => getInputProps()}
+                              className={"choose-file"}
+                            >
+                              або виберіть з файлів
+                            </p>
+                            <p className={"image-box-text"}>SVG format</p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }}
+                </Dropzone>
+              }
+            </div>
           </DialogContent>
           <DialogActions>
+            {!(this.props.alt === 'load image') ?
+              <Button onClick={this.handleDeleteImage} color="secondary">
+                Delete image
+              </Button> :
+              null
+            }
             <Button onClick={this.handleClose} color="primary">
-              Save changes
+              Close modal
             </Button>
           </DialogActions>
         </Dialog>
